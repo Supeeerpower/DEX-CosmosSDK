@@ -24,7 +24,19 @@ var (
 )
 
 const (
-// this line is used by starport scaffolding # simapp/module/const
+	opWeightMsgCreatePool = "op_weight_msg_pool"
+	// TODO: Determine the simulation weight value
+	defaultWeightMsgCreatePool int = 100
+
+	opWeightMsgUpdatePool = "op_weight_msg_pool"
+	// TODO: Determine the simulation weight value
+	defaultWeightMsgUpdatePool int = 100
+
+	opWeightMsgDeletePool = "op_weight_msg_pool"
+	// TODO: Determine the simulation weight value
+	defaultWeightMsgDeletePool int = 100
+
+	// this line is used by starport scaffolding # simapp/module/const
 )
 
 // GenerateGenesisState creates a randomized GenState of the module
@@ -36,6 +48,17 @@ func (AppModule) GenerateGenesisState(simState *module.SimulationState) {
 	dexGenesis := types.GenesisState{
 		Params: types.DefaultParams(),
 		PortId: types.PortID,
+		PoolList: []types.Pool{
+			{
+				Id:      0,
+				Creator: sample.AccAddress(),
+			},
+			{
+				Id:      1,
+				Creator: sample.AccAddress(),
+			},
+		},
+		PoolCount: 2,
 		// this line is used by starport scaffolding # simapp/module/genesisState
 	}
 	simState.GenState[types.ModuleName] = simState.Cdc.MustMarshalJSON(&dexGenesis)
@@ -58,6 +81,39 @@ func (am AppModule) RegisterStoreDecoder(_ sdk.StoreDecoderRegistry) {}
 // WeightedOperations returns the all the gov module operations with their respective weights.
 func (am AppModule) WeightedOperations(simState module.SimulationState) []simtypes.WeightedOperation {
 	operations := make([]simtypes.WeightedOperation, 0)
+
+	var weightMsgCreatePool int
+	simState.AppParams.GetOrGenerate(simState.Cdc, opWeightMsgCreatePool, &weightMsgCreatePool, nil,
+		func(_ *rand.Rand) {
+			weightMsgCreatePool = defaultWeightMsgCreatePool
+		},
+	)
+	operations = append(operations, simulation.NewWeightedOperation(
+		weightMsgCreatePool,
+		dexsimulation.SimulateMsgCreatePool(am.accountKeeper, am.bankKeeper, am.keeper),
+	))
+
+	var weightMsgUpdatePool int
+	simState.AppParams.GetOrGenerate(simState.Cdc, opWeightMsgUpdatePool, &weightMsgUpdatePool, nil,
+		func(_ *rand.Rand) {
+			weightMsgUpdatePool = defaultWeightMsgUpdatePool
+		},
+	)
+	operations = append(operations, simulation.NewWeightedOperation(
+		weightMsgUpdatePool,
+		dexsimulation.SimulateMsgUpdatePool(am.accountKeeper, am.bankKeeper, am.keeper),
+	))
+
+	var weightMsgDeletePool int
+	simState.AppParams.GetOrGenerate(simState.Cdc, opWeightMsgDeletePool, &weightMsgDeletePool, nil,
+		func(_ *rand.Rand) {
+			weightMsgDeletePool = defaultWeightMsgDeletePool
+		},
+	)
+	operations = append(operations, simulation.NewWeightedOperation(
+		weightMsgDeletePool,
+		dexsimulation.SimulateMsgDeletePool(am.accountKeeper, am.bankKeeper, am.keeper),
+	))
 
 	// this line is used by starport scaffolding # simapp/module/operation
 

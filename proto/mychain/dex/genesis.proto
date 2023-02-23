@@ -4,12 +4,15 @@ package mychain.dex;
 
 import "gogoproto/gogo.proto";
 import "mychain/dex/params.proto";
+import "mychain/dex/pool.proto";
 
 option go_package = "mychain/x/dex/types";
 
 // GenesisState defines the dex module's genesis state.
 message GenesisState {
-  Params params  = 1 [(gogoproto.nullable) = false];
-  string port_id = 2;
+           Params params    = 1 [(gogoproto.nullable) = false];
+           string port_id   = 2;
+  repeated Pool   poolList  = 3 [(gogoproto.nullable) = false];
+           uint64 poolCount = 4;
 }
 
