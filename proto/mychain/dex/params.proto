@@ -1,0 +1,12 @@
+syntax = "proto3";
+package mychain.dex;
+
+import "gogoproto/gogo.proto";
+
+option go_package = "mychain/x/dex/types";
+
+// Params defines the parameters for the module.
+message Params {
+  option (gogoproto.goproto_stringer) = false;
+  
+}
